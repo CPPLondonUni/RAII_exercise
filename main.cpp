@@ -3,13 +3,30 @@
 
 #include <iostream>
 
+struct ResourceHandle {
+
+    explicit ResourceHandle(int size)
+        : res(acquire_resource(size))
+    {}
+
+    ~ResourceHandle()
+    {
+        release_resource(res);
+    }
+
+    int access(int idx) const { return access_resource(res, idx); }
+
+private:
+    MemoryResource res;
+};
+
 int use_resource_example(int size)
 {
-    auto resource = acquire_resource(size);
+    auto resource = ResourceHandle(size);
 
     int total = 0;
     for (int i = 0; i < size; i++) {
-        total += access_resource(resource, i);
+        total += resource.access(i);
     }
 
     if (total < 100) {
@@ -17,7 +34,6 @@ int use_resource_example(int size)
         return 0;
     }
 
-    release_resource(resource);
     return total;
 }
 
